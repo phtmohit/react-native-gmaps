@@ -1,16 +1,17 @@
 'use strict';
 
-let React = require('react-native');
+let ReactNative = require('react-native');
+
+let React = require('react');
+
+let {Component, PropTypes, Image} = React;
 
 let {
-  View,
-  Component,
-  requireNativeComponent,
-  PropTypes,
-  DeviceEventEmitter,
-  NativeModules,
-  Image
-} = React;
+ View,
+ requireNativeComponent,
+ DeviceEventEmitter,
+ NativeModules
+} = ReactNative;
 
 var RNGMapsModule = NativeModules.RNGMapsModule;
 
@@ -88,7 +89,7 @@ componentDidMount () {
       this.setState({ zoomOnMarkers: bool||true });
     });
   }
-  
+
   updateMarkers (markers) {
     let newMarkers = [];
     for (var i = 0; i < markers.length; i++) {
