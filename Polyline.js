@@ -20,7 +20,7 @@ class Polyline {
       callback(new Polyline(id, options));
     });
   }
-  
+
   constructor (id, config) {
     this.id     = id;
     this.color  = config.color;
@@ -32,6 +32,11 @@ class Polyline {
     callback = callback || (()=>{});
     this.points.push([lat, lng]);
     API.setState(this._toMap(), callback);
+  }
+
+  snapShot(callback) {
+    callback = callback || (()=>{});
+    API.snapshot(callback);
   }
 
   setPoints(points, callback) {

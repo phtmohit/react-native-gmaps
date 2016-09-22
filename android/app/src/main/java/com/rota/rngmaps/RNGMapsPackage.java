@@ -25,6 +25,7 @@ public class RNGMapsPackage implements ReactPackage {
         List<NativeModule> modules = new ArrayList<>();
         modules.add(new RNGMapsModule(reactApplicationContext, viewManager));
         modules.add(new RNGMapsPolylineModule(reactApplicationContext, viewManager));
+        modules.add(new RNGMapsSnapshotModule(reactApplicationContext, viewManager));
         return modules;
     }
     @Override
@@ -39,7 +40,3 @@ public class RNGMapsPackage implements ReactPackage {
         return Arrays.asList();
     }
 }
-
-
-
-
