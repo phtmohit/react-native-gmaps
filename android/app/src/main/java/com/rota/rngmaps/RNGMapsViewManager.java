@@ -29,9 +29,9 @@ import android.util.Log;
  * Created by Henry on 08/10/2015.
  */
 
-public class RNGMapsViewManager extends SimpleViewManager<MapView> {
+public class RNGMapsViewManager extends SimpleViewManager<MapView> implements OnMapReadyCallback {
     public static final String REACT_CLASS = "RNGMapsViewManager";
-    
+
     private MapView mView;
     private GoogleMap map;
     private ReactContext reactContext;
@@ -138,57 +138,60 @@ public class RNGMapsViewManager extends SimpleViewManager<MapView> {
         mView = new MapView(context);
         mView.onCreate(null);
         mView.onResume();
-        map = mView.getMap();
-
-        if (map == null) {
-            sendMapError("Map is null", "map_null");
-        } else {
-            map.getUiSettings().setMyLocationButtonEnabled(true);
-            map.setMyLocationEnabled(true);
-
-            // We need to be sure to disable location-tracking when app enters background, in-case some other module
-            // has acquired a wake-lock and is controlling location-updates, otherwise, location-manager will be left
-            // updating location constantly, killing the battery, even though some other location-mgmt module may
-            // desire to shut-down location-services.
-            LifecycleEventListener listener = new LifecycleEventListener() {
-                @Override
-                public void onHostResume() {
-                    map.setMyLocationEnabled(true);
-                }
-
-                @Override
-                public void onHostPause() {
-                    map.setMyLocationEnabled(false);
-                }
-
-                @Override
-                public void onHostDestroy() {
-
-                }
-            };
-
-            context.addLifecycleEventListener(listener);
-
-            try {
-                MapsInitializer.initialize(context.getApplicationContext());
-                map.setOnCameraChangeListener(getCameraChangeListener());
-                map.setOnMarkerClickListener(getMarkerClickListener());
-                //add location button click listener
-                map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-                    @Override
-                    public boolean onMyLocationButtonClick() {
-                        CameraPosition position = map.getCameraPosition();
-                        mlastZoom = (int) position.zoom;
-                        return false;
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                sendMapError("Map initialize error", "map_init_error");
-            }
-        }
-
+        mView.getMapAsync(this);
         return mView;
+    }
+
+    @Override
+    public void onMapReady(final GoogleMap googleMap) {
+      map = googleMap;
+      if (map == null) {
+          sendMapError("Map is null", "map_null");
+      } else {
+          map.getUiSettings().setMyLocationButtonEnabled(true);
+          map.setMyLocationEnabled(true);
+
+          // We need to be sure to disable location-tracking when app enters background, in-case some other module
+          // has acquired a wake-lock and is controlling location-updates, otherwise, location-manager will be left
+          // updating location constantly, killing the battery, even though some other location-mgmt module may
+          // desire to shut-down location-services.
+          LifecycleEventListener listener = new LifecycleEventListener() {
+              @Override
+              public void onHostResume() {
+                  map.setMyLocationEnabled(true);
+              }
+
+              @Override
+              public void onHostPause() {
+                  map.setMyLocationEnabled(false);
+              }
+
+              @Override
+              public void onHostDestroy() {
+
+              }
+          };
+
+          reactContext.addLifecycleEventListener(listener);
+
+          try {
+              MapsInitializer.initialize(reactContext.getApplicationContext());
+              map.setOnCameraChangeListener(getCameraChangeListener());
+              map.setOnMarkerClickListener(getMarkerClickListener());
+              //add location button click listener
+              map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+                  @Override
+                  public boolean onMyLocationButtonClick() {
+                      CameraPosition position = map.getCameraPosition();
+                      mlastZoom = (int) position.zoom;
+                      return false;
+                  }
+              });
+          } catch (Exception e) {
+              e.printStackTrace();
+              sendMapError("Map initialize error", "map_init_error");
+          }
+      }
     }
 
     private void sendMapError (String message, String type) {
@@ -273,9 +276,9 @@ public class RNGMapsViewManager extends SimpleViewManager<MapView> {
                             );
                 }
 
-
-                map.animateCamera(cameraUpdate);
-
+                if (map != null) {
+                  map.animateCamera(cameraUpdate);
+                }
                 return true;
             } catch (Exception e) {
                 // ERROR!
@@ -310,7 +313,7 @@ public class RNGMapsViewManager extends SimpleViewManager<MapView> {
             // All markers to map
             for (int i = 0; i < markerArray.size(); i++) {
                 ReadableMap markerJson = markerArray.getMap(i);
-                if(markerJson.hasKey("coordinates")) {
+                if(markerJson.hasKey("coordinates") && map != null) {
                     Marker marker = map.addMarker(createMarker(markerJson));
 
                     if (markerJson.hasKey("id")) {
