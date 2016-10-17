@@ -9,9 +9,9 @@ let {
 var API = NativeModules.RNGMapsSnapshotModule;
 
 class Snapshot {
-  static snapShot(callback) {
+  static snapShot(points, callback) {
     callback = callback || (()=>{});
-    API.snapshot(callback);
+    API.snapshot(points, callback);
   }
 }
 

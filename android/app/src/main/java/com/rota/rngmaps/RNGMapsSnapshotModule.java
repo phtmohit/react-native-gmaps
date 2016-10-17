@@ -7,7 +7,11 @@ import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.UiThreadUtil;
 import com.google.android.gms.maps.GoogleMap.SnapshotReadyCallback;
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.model.*;
 
 import android.graphics.Bitmap;
 import android.util.Base64;
@@ -33,7 +37,16 @@ public class RNGMapsSnapshotModule extends ReactContextBaseJavaModule {
         mView = view;
     }
     @ReactMethod
-    public void snapshot(final Callback cb) {
+    public void snapshot(final ReadableMap points, final Callback cb) {
+
+      UiThreadUtil.runOnUiThread(new Runnable()
+         {
+          @Override
+          public void run()
+          {
+            mView.autoZoomMap(points);
+          }
+      });
       SnapshotReadyCallback callback = new SnapshotReadyCallback() {
            Bitmap bitmap;
            @Override

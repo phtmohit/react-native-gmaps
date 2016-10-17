@@ -127,6 +127,20 @@ public class RNGMapsViewManager extends SimpleViewManager<MapView> implements On
         return map;
     }
 
+    public void autoZoomMap(final ReadableMap points) {
+      LatLngBounds.Builder builder = new LatLngBounds.Builder();
+      LatLng latLng;
+      latLng = new LatLng(points.getDouble("startLat"), points.getDouble("startLon"));
+      builder.include(latLng);
+      latLng = new LatLng(points.getDouble("endLat"), points.getDouble("endLon"));
+      builder.include(latLng);
+      LatLngBounds bounds = builder.build();
+      int padding = 0;
+      CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+      map.moveCamera(cu);
+      map.animateCamera(cu);
+    }
+
     @Override
     public String getName() {
         return REACT_CLASS;
